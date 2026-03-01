@@ -1,24 +1,20 @@
 // Typing Effect
-const words = ["Cloud Enthusiast", "Networking Learner", "Java Developer"];
-let i = 0, j = 0, current = "", isDeleting = false;
+const words = ["Cloud Enthusiast", "Networking Learner", "Java Developer" ,"CyberSecurity Analyst"];
+const typingElement = document.getElementById("typing");
+let i = 0;
 
-function typeEffect() {
-    current = words[i];
-    document.getElementById("typing").textContent = current.substring(0, j);
+function rotateWords() {
+    typingElement.classList.add("is-fading");
 
-    if (!isDeleting && j < current.length) {
-        j++;
-        setTimeout(typeEffect, 100);
-    } else if (isDeleting && j > 0) {
-        j--;
-        setTimeout(typeEffect, 50);
-    } else {
-        isDeleting = !isDeleting;
-        if (!isDeleting) i = (i + 1) % words.length;
-        setTimeout(typeEffect, 800);
-    }
+    window.setTimeout(() => {
+        i = (i + 1) % words.length;
+        typingElement.textContent = words[i];
+        typingElement.classList.remove("is-fading");
+    }, 380);
 }
-typeEffect();
+
+typingElement.textContent = words[0];
+window.setInterval(rotateWords, 2600);
 
 // Dark/Light Mode Toggle
 document.getElementById("themeToggle").onclick = function () {
@@ -38,7 +34,7 @@ function reveal() {
 }
 
 // Smooth background blur transition on scroll
-const animatedSections = document.querySelectorAll("#home, #about, #skills, #projects, #contact");
+const animatedSections = document.querySelectorAll("#home, #about, #skills, #projects, #hire, #contact");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 let ticking = false;
 
@@ -72,3 +68,32 @@ function onScroll() {
 window.addEventListener("scroll", onScroll, { passive: true });
 window.addEventListener("resize", onScroll);
 onScroll();
+
+// Hire form submit
+const hireForm = document.getElementById("hireForm");
+const hireStatus = document.getElementById("hireStatus");
+
+if (hireForm && hireStatus) {
+    hireForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        hireStatus.textContent = "Sending...";
+
+        try {
+            const formData = new FormData(hireForm);
+            const response = await fetch("/api/hire", {
+                method: "POST",
+                body: formData
+            });
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || "Failed to send request.");
+            }
+
+            hireStatus.textContent = "Request saved successfully.";
+            hireForm.reset();
+        } catch (error) {
+            hireStatus.textContent = error.message || "Something went wrong.";
+        }
+    });
+}
